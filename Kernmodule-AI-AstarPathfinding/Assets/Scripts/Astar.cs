@@ -5,25 +5,59 @@ public partial class Astar
 {
 	public List<Vector2Int> FindPathToTarget(Vector2Int _startPos, Vector2Int _endPos, Cell[,] _grid)
 	{
+		List<Vector2Int> EndPath = new List<Vector2Int>();
 		Node[,] nodeGrid = CreateNodeGrid(_grid, _startPos, _endPos);
-		Node startNode = FindStartingNode(_startPos, _grid, nodeGrid);
-		Cell startCell = FindStartingCell(_startPos, _grid);
+		Node startNode = FindNodeInNodegrid(_startPos, _grid, nodeGrid);
+		Cell startCell = FindCellInGrid(_startPos, _grid);
 
-		int rows = nodeGrid.GetLength(0);
-		int cols = nodeGrid.GetLength(1);
-		for (int i = 0; i < rows; i++)
+		//Start Checking
+		List<Node> openList = new List<Node>();
+		List<Node> closeList = new List<Node>();
+		openList.Add(startNode);
+
+		//Loop Checking
+		while (openList.Count > 0)
 		{
-			for (int j = 0; j < cols; j++)
+			Node currentNode = GetNodeWithLowestFScore(openList);
+			openList.Remove(currentNode);
+			closeList.Add(currentNode);
+
+			if (currentNode.position == _endPos)
 			{
-				Debug.Log(nodeGrid[i, j].FScore);
+				EndPath.Add(currentNode.position);
+				return EndPath;
 			}
+
+			//get the neighbour nodes
+			Cell currentCell = FindCellInGrid(currentNode.position, _grid);
+			List<Cell> Neighbours = currentCell.GetNeighbours(_grid);
+			List<Node> neighbourNodes = new List<Node>();
+			foreach (Cell neighbor in Neighbours)
+			{
+				neighbourNodes.Add(FindNodeInNodegrid(currentNode.position, _grid, nodeGrid));
+			}
+
+			foreach (Node neighbouringnode in neighbourNodes)
+			{
+
+			}
+
+			/*Wall wallDirection = FindCellInGrid(currentNode.position, _grid).walls;
+			List<Wall> wallsObstruction = new List<Wall>();
+			switch (wallDirection)
+			{
+				case Wall.LEFT: wallsObstruction.Add(Wall.LEFT); break;
+				case Wall.UP: wallsObstruction.Add(Wall.UP); break;
+				case Wall.RIGHT: wallsObstruction.Add(Wall.RIGHT); break;
+				case Wall.DOWN: wallsObstruction.Add(Wall.DOWN); break;
+			}*/
 		}
 
-		//List<Cell> Neighbours = startCell.GetNeighbours(_grid);
-
-		return null;
+		return EndPath;
 	}
-	public Node[,] CreateNodeGrid(Cell[,] _grid,Vector2Int _startPos, Vector2Int _endPos)
+
+	//Generating The Node Grid//////////////////////////////////
+	private Node[,] CreateNodeGrid(Cell[,] _grid, Vector2Int _startPos, Vector2Int _endPos)
 	{
 		int rows = _grid.GetLength(0);
 		int cols = _grid.GetLength(1);
@@ -39,7 +73,7 @@ public partial class Astar
 		}
 		return nodeGrid;
 	}
-	public int DefineGScore(Vector2Int _NeighbourNodePos, Vector2Int _currentNodePos)
+	private int DefineGScore(Vector2Int _NeighbourNodePos, Vector2Int _currentNodePos)
 	{
 		int dx = Mathf.Abs(_NeighbourNodePos.x - _currentNodePos.x);
 		int dy = Mathf.Abs(_NeighbourNodePos.y - _currentNodePos.y);
@@ -64,7 +98,7 @@ public partial class Astar
 		}
 		return distance * 10;
 	}
-	public int DefineHScore(Vector2Int _NeighbourNodePos, Vector2Int _endPos)
+	private int DefineHScore(Vector2Int _NeighbourNodePos, Vector2Int _endPos)
 	{
 		int dx = Mathf.Abs(_NeighbourNodePos.x - _endPos.x);
 		int dy = Mathf.Abs(_NeighbourNodePos.y - _endPos.y);
@@ -90,7 +124,9 @@ public partial class Astar
 		}
 		return distance * 10;
 	}
-	public Node FindStartingNode(Vector2Int _startPos, Cell[,] _grid, Node[,] _nodeGrid)
+
+	//Getting Values/////////////////////////////////////
+	private Node FindNodeInNodegrid(Vector2Int _startPos, Cell[,] _grid, Node[,] _nodeGrid)
 	{
 		int rows = _grid.GetLength(0);
 		int cols = _grid.GetLength(1);
@@ -109,7 +145,7 @@ public partial class Astar
 		}
 		return null;
 	}
-	public Cell FindStartingCell(Vector2Int _startPos, Cell[,] _grid)
+	private Cell FindCellInGrid(Vector2Int _startPos, Cell[,] _grid)
 	{
 		int rows = _grid.GetLength(0);
 		int cols = _grid.GetLength(1);
@@ -127,6 +163,23 @@ public partial class Astar
 		}
 		return null;
 	}
+	private Node GetNodeWithLowestFScore(List<Node> _listNodes)
+	{
+		if (_listNodes.Count == 0)
+		{
+			return null;
+		}
+
+		Node lowestFScoreNode = _listNodes[0];
+		foreach (Node node in _listNodes)
+		{
+			if (node.FScore < lowestFScoreNode.FScore)
+			{
+				lowestFScoreNode = node;
+			}
+		}
+		return lowestFScoreNode;
+	}
 
 	public class Node
 	{
@@ -135,7 +188,7 @@ public partial class Astar
 
 		//GScore + HScore
 		public float FScore
-		{ 
+		{
 			get { return GScore + HScore; }
 		}
 		public float GScore; //Current Travelled Distance

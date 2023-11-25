@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Unity.Jobs;
 using UnityEngine;
 
 public partial class Astar
@@ -7,8 +8,8 @@ public partial class Astar
 	{
 		List<Vector2Int> EndPath = new List<Vector2Int>();
 		Node[,] nodeGrid = CreateNodeGrid(_grid, _startPos, _endPos);
-		Node startNode = FindNodeInNodegrid(_startPos, _grid, nodeGrid);
 		Cell startCell = FindCellInGrid(_startPos, _grid);
+		Node startNode = FindNodeInNodegrid(_startPos, _grid, nodeGrid);
 
 		//Start Checking
 		List<Node> openList = new List<Node>();
@@ -22,10 +23,14 @@ public partial class Astar
 			openList.Remove(currentNode);
 			closeList.Add(currentNode);
 
+			//WE FOUND THE END
 			if (currentNode.position == _endPos)
 			{
-				EndPath.Add(currentNode.position);
-				return EndPath;
+				//if (closeList.Count > 0) { currentNode.parent = previousNode; }
+				//Run a method that will check for all of the parents going back from the end point until we find the start node and will return our path
+				List<Vector2Int> path = new List<Vector2Int>();
+
+				return path;
 			}
 
 			//get the neighbour nodes
@@ -39,20 +44,23 @@ public partial class Astar
 
 			foreach (Node neighbouringnode in neighbourNodes)
 			{
+				// if in close list skip to next node
+				if (closeList.Contains(neighbouringnode))
+				{
+					continue;
+				}
 
+				//check if there is a shorter neigbhour node
+				if (neighbouringnode.FScore <= currentNode.FScore || !openList.Contains(neighbouringnode))
+				{
+					neighbouringnode.parent = currentNode;
+					if (!openList.Contains(neighbouringnode))
+					{
+						openList.Add(neighbouringnode);
+					}
+				}
 			}
-
-			/*Wall wallDirection = FindCellInGrid(currentNode.position, _grid).walls;
-			List<Wall> wallsObstruction = new List<Wall>();
-			switch (wallDirection)
-			{
-				case Wall.LEFT: wallsObstruction.Add(Wall.LEFT); break;
-				case Wall.UP: wallsObstruction.Add(Wall.UP); break;
-				case Wall.RIGHT: wallsObstruction.Add(Wall.RIGHT); break;
-				case Wall.DOWN: wallsObstruction.Add(Wall.DOWN); break;
-			}*/
 		}
-
 		return EndPath;
 	}
 

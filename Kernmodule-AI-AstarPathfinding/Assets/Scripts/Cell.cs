@@ -40,11 +40,38 @@ public class Cell
                     continue;
                 }
                 Cell canditateCell = grid[cellX, cellY];
-                result.Add(canditateCell);
+
+				if (!HasWallBetweenCells(canditateCell))
+				{
+					result.Add(canditateCell);
+				}
             }
         }
         return result;
     }
+
+	private bool HasWallBetweenCells(Cell otherCell)
+	{
+		int xDifference = otherCell.gridPosition.x - this.gridPosition.x;
+		int yDifference = otherCell.gridPosition.y - this.gridPosition.y;
+		switch (xDifference)
+		{
+			case 1 when 
+                this.HasWall(Wall.RIGHT) && otherCell.HasWall(Wall.LEFT):
+			case -1 when 
+                this.HasWall(Wall.LEFT) && otherCell.HasWall(Wall.RIGHT):
+				return true;
+		}
+		switch (yDifference)
+		{
+            case 1 when 
+                this.HasWall(Wall.UP) && otherCell.HasWall(Wall.DOWN):
+			case -1 when 
+                this.HasWall(Wall.DOWN) && otherCell.HasWall(Wall.UP):
+			return true;
+		}
+		return false;
+	}
 }
 
 [System.Flags]

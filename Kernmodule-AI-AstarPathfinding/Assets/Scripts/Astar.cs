@@ -10,6 +10,7 @@ public partial class Astar
 		Node[,] nodeGrid = CreateNodeGrid(_grid, _startPos, _endPos);
 		Cell startCell = FindCellInGrid(_startPos, _grid);
 		Node startNode = FindNodeInNodegrid(_startPos, _grid, nodeGrid);
+		Node endNode = FindNodeInNodegrid(_endPos, _grid, nodeGrid);
 
 		//Start Checking
 		List<Node> openList = new List<Node>();
@@ -26,10 +27,8 @@ public partial class Astar
 			//WE FOUND THE END
 			if (currentNode.position == _endPos)
 			{
-				//if (closeList.Count > 0) { currentNode.parent = previousNode; }
 				//Run a method that will check for all of the parents going back from the end point until we find the start node and will return our path
-				List<Vector2Int> path = new List<Vector2Int>();
-
+				List<Vector2Int> path = returnTheTruePath(endNode, startNode);
 				return path;
 			}
 
@@ -39,7 +38,7 @@ public partial class Astar
 			List<Node> neighbourNodes = new List<Node>();
 			foreach (Cell neighbor in Neighbours)
 			{
-				neighbourNodes.Add(FindNodeInNodegrid(currentNode.position, _grid, nodeGrid));
+				neighbourNodes.Add(FindNodeInNodegrid(neighbor.gridPosition, _grid, nodeGrid));
 			}
 
 			foreach (Node neighbouringnode in neighbourNodes)
@@ -51,7 +50,9 @@ public partial class Astar
 				}
 
 				//check if there is a shorter neigbhour node
+				//if (neighbouringnode.FScore <= currentNode.FScore || !openList.Any(node => node.position == neighbouringnode.position))
 				if (neighbouringnode.FScore <= currentNode.FScore || !openList.Contains(neighbouringnode))
+
 				{
 					neighbouringnode.parent = currentNode;
 					if (!openList.Contains(neighbouringnode))
@@ -61,6 +62,8 @@ public partial class Astar
 				}
 			}
 		}
+
+		Debug.Log(EndPath);
 		return EndPath;
 	}
 
@@ -187,6 +190,21 @@ public partial class Astar
 			}
 		}
 		return lowestFScoreNode;
+	}
+	private List<Vector2Int> returnTheTruePath(Node _endNode, Node _startNode)
+	{
+		List<Vector2Int> path = new List<Vector2Int>();
+		Node currentNode = _endNode;
+
+		while (currentNode != _startNode)
+		{
+			path.Add(currentNode.position);
+			currentNode = currentNode.parent;
+			if (currentNode == null) { break; }
+		}
+
+		path.Reverse();
+		return path;
 	}
 
 	public class Node

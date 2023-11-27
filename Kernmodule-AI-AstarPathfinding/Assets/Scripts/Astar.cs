@@ -6,9 +6,9 @@ public partial class Astar
 {
 	public List<Vector2Int> FindPathToTarget(Vector2Int _startPos, Vector2Int _endPos, Cell[,] _grid)
 	{
+		//calculating some variables
 		List<Vector2Int> EndPath = new List<Vector2Int>();
 		Node[,] nodeGrid = CreateNodeGrid(_grid, _startPos, _endPos);
-		Cell startCell = FindCellInGrid(_startPos, _grid);
 		Node startNode = FindNodeInNodegrid(_startPos, _grid, nodeGrid);
 		Node endNode = FindNodeInNodegrid(_endPos, _grid, nodeGrid);
 
@@ -24,10 +24,10 @@ public partial class Astar
 			openList.Remove(currentNode);
 			closeList.Add(currentNode);
 
-			//WE FOUND THE END
+			//WE FOUND THE END PATH
 			if (currentNode.position == _endPos)
 			{
-				//Run a method that will check for all of the parents going back from the end point until we find the start node and will return our path
+				//Run a method that will look trough all parents 
 				List<Vector2Int> path = returnTheTruePath(endNode, startNode);
 				return path;
 			}
@@ -50,7 +50,6 @@ public partial class Astar
 				}
 
 				//check if there is a shorter neigbhour node
-				//if (neighbouringnode.FScore <= currentNode.FScore || !openList.Any(node => node.position == neighbouringnode.position))
 				if (neighbouringnode.FScore <= currentNode.FScore || !openList.Contains(neighbouringnode))
 
 				{
@@ -63,7 +62,6 @@ public partial class Astar
 			}
 		}
 
-		Debug.Log(EndPath);
 		return EndPath;
 	}
 
@@ -136,7 +134,7 @@ public partial class Astar
 		return distance * 10;
 	}
 
-	//Getting Values/////////////////////////////////////
+	//Getting diffrent Values/////////////////////////////////////
 	private Node FindNodeInNodegrid(Vector2Int _startPos, Cell[,] _grid, Node[,] _nodeGrid)
 	{
 		int rows = _grid.GetLength(0);
@@ -206,7 +204,6 @@ public partial class Astar
 		path.Reverse();
 		return path;
 	}
-
 	public class Node
 	{
 		public Vector2Int position; //Position on the grid
